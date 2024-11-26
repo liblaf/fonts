@@ -9,8 +9,6 @@ on:
 jobs:
   build:
     name: Build
-    permissions:
-      contents: write
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -26,6 +24,23 @@ jobs:
         with:
           name: TwemojiFlags
           path: TwemojiFlags.ttf
+
+  release:
+    name: Release
+    permissions:
+      contents: write
+    needs:
+      - build
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
+      cancel-in-progress: true
+    steps:
+      - name: Download Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: TwemojiFlags
       - name: Release
         uses: liblaf/actions/release@main
         with:

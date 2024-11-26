@@ -1,0 +1,89 @@
+name: Microsoft Fonts
+
+on:
+  push:
+  schedule:
+    - cron: "0 0 * * 0"
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Download Fido
+        run: |-
+          # https://github.com/pbatard/Fido
+          Invoke-WebRequest -Uri "https://github.com/pbatard/Fido/raw/refs/heads/master/Fido.ps1" -OutFile "Fido.ps1"
+      - name: List Windows Versions
+        run: .\Fido.ps1 -Win List
+        continue-on-error: true
+      - name: List Windows Languages
+        run: .\Fido.ps1 -Lang List
+        continue-on-error: true
+      - name: Download Windows ISO
+        run: .\Fido.ps1 -Win "${{ matrix.Win }}" -Lang "${{ matrix.Lang }}"
+      - name: List Directory Contents
+        run: Get-ChildItem
+      - name: Parse ISO Filename
+        run: python ms-fonts/parse-iso-filename.py
+      - name: Extract Fonts
+        run: |-
+          # https://wiki.archlinux.org/title/Microsoft_fonts#Extracting_fonts_from_a_Windows_ISO
+          7z e *.iso sources/install.wim
+          7z e -y install.wim 1/Windows/{Fonts/"*".{ttf,ttc},System32/Licenses/neutral/"*"/"*"/license.rtf} -ofonts/
+        shell: bash
+      - name: Pack Fonts
+        run: 7z a "$WIN-$LANG.zip" *
+        working-directory: fonts/
+        shell: bash
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.Win }}-${{ matrix.Lang }}
+          path: fonts/*.zip
+    strategy:
+      matrix:
+        Win:
+          - Windows 11
+          - Windows 10
+        Lang:
+          - Chinese (Simplified)
+          - English
+
+  release:
+    name: Release
+    permissions:
+      contents: write
+    needs:
+      - build
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}-${{ matrix.Win }}
+      cancel-in-progress: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Download Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+          pattern: ${{ matrix.Win }}-*
+          merge-multiple: true
+      - id: parse
+        name: Parse Artifact Filename
+        run: python ms-fonts/parse-asset-filename.py dist/*.zip
+      - name: Release
+        uses: liblaf/actions/release@main
+        with:
+          clobber: true
+          files: dist/*.zip
+          tag: ${{ steps.parse.outputs.tag }}
+    strategy:
+      matrix:
+        Win:
+          - Windows 11
+          - Windows 10
