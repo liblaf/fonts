@@ -28,7 +28,7 @@ jobs:
       - name: List Directory Contents
         run: Get-ChildItem
       - name: Parse ISO Filename
-        run: python ms-fonts/parse-iso-filename.py
+        run: python ms-fonts/parse-iso-filename.py *.iso
       - name: Extract Fonts
         run: |-
           # https://wiki.archlinux.org/title/Microsoft_fonts#Extracting_fonts_from_a_Windows_ISO
