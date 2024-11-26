@@ -24,11 +24,16 @@ jobs:
         run: .\Fido.ps1 -Lang List
         continue-on-error: true
       - name: Download Windows ISO
-        run: .\Fido.ps1 -Win "${{ matrix.Win }}" -Lang "${{ matrix.Lang }}"
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 5
+          max_attempts: 3
+          command: .\Fido.ps1 -Win "${{ matrix.Win }}" -Lang "${{ matrix.Lang }}"
       - name: List Directory Contents
         run: Get-ChildItem
       - name: Parse ISO Filename
         run: python ms-fonts/parse-iso-filename.py *.iso
+        shell: bash
       - name: Extract Fonts
         run: |-
           # https://wiki.archlinux.org/title/Microsoft_fonts#Extracting_fonts_from_a_Windows_ISO
