@@ -18,7 +18,9 @@ jobs:
       - name: Setup uv
         uses: astral-sh/setup-uv@v4
       - name: Build
-        uses: ./twemoji-flags/build.sh
+        run: ./twemoji-flags/build.sh
+        env:
+          GH_TOKEN: ${{ github.token }}
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
