@@ -15,7 +15,7 @@ def main() -> None:
         print(f"WIN={match['win']}", file=fp)
         print(f"LANG={match['lang']}", file=fp)
     with Path(os.environ["GITHUB_OUTPUT"]).open("a") as fp:
-        print(f"tag={match['win']}-{match['lang']}", file=fp)
+        print(f"tag={match['win']}", file=fp)
 
 
 if __name__ == "__main__":

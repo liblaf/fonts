@@ -1,0 +1,25 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-action.json
+# https://github.com/oxsecurity/megalinter/blob/main/mega-linter-runner/generators/mega-linter/templates/mega-linter.yml
+# https://megalinter.io
+
+name: MegaLinter
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  mega-linter:
+    name: MegaLinter
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+      security-events: write
+      statuses: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: MegaLinter
+        uses: liblaf/actions/mega-linter@main
