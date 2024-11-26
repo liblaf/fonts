@@ -1,0 +1,32 @@
+name: Twemoji Flags
+
+on:
+  push:
+  schedule:
+    - cron: "0 0 * * 0"
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v4
+      - name: Build
+        uses: ./twemoji-flags/build.sh
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: TwemojiFlags
+          path: TwemojiFlags.ttf
+      - name: Release
+        uses: liblaf/actions/release@main
+        with:
+          clobber: true
+          tag: TwemojiFlags
+          files: TwemojiFlags.ttf
