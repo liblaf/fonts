@@ -1,0 +1,32 @@
+name: (Auto) PR
+
+on:
+  pull_request:
+  schedule:
+    - cron: "0 0 * * 0"
+  workflow_dispatch:
+
+jobs:
+  merge:
+    name: Merge
+    permissions:
+      pull-requests: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Merge
+        uses: liblaf/actions/auto-merge@main
+        with:
+          add-label: automerge
+          label: "autorelease: pending"
+          token: ${{ secrets.PAT || github.token }}
+
+  review:
+    name: Review
+    permissions:
+      pull-requests: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Review
+        uses: liblaf/actions/auto-review@main
+        with:
+          token: ${{ secrets.PAT || github.token }}

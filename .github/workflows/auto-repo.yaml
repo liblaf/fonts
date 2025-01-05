@@ -1,0 +1,75 @@
+name: (Auto) Repo
+
+on:
+  schedule:
+    - cron: "0 0 * * 0"
+  workflow_dispatch:
+
+jobs:
+  copier-update:
+    name: Copier Update
+    permissions:
+      actions: write
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.PAT || github.token }}
+      - name: Copier Update
+        uses: liblaf/actions/copier-update@main
+      - name: Auto Commit
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore(copier): update from template"
+          commit_user_name: ${{ github.actor }}
+          commit_user_email: ${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com
+          commit_author: ${{ github.actor }} <${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com>
+
+  label-sync:
+    name: Label Sync
+    permissions:
+      issues: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Label Sync
+        uses: EndBug/label-sync@v2
+        with:
+          token: ${{ secrets.PAT || github.token }}
+          config-file: https://github.com/liblaf/.github/raw/refs/heads/main/.github/labels.yaml
+          delete-other-labels: false
+
+  repo-edit:
+    name: Repo Edit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Repo Edit
+        run: |-
+          gh repo edit ${{ github.repository }} \
+            --allow-update-branch \
+            --default-branch "main" \
+            --delete-branch-on-merge \
+            --enable-auto-merge \
+            --enable-discussions \
+            --enable-issues \
+            --enable-merge-commit=false \
+            --enable-rebase-merge=false \
+            --enable-squash-merge \
+            --enable-wiki=false
+        env:
+          GH_TOKEN: ${{ secrets.PAT || github.token }}
+
+  set-default-workflow-permissions:
+    name: Set Default Workflow Permissions
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set Default Workflow Permissions
+        run: |-
+          # https://docs.github.com/en/rest/actions/permissions#set-default-workflow-permissions-for-a-repository
+          gh api /repos/${{ github.repository }}/actions/permissions/workflow \
+            --field default_workflow_permissions="read" \
+            --field can_approve_pull_request_reviews=true \
+            --method PUT
+        env:
+          GH_TOKEN: ${{ secrets.PAT || github.token }}

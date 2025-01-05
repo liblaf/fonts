@@ -12,11 +12,11 @@ jobs:
   mega-linter:
     name: MegaLinter
     permissions:
-      contents: write
-      issues: write
-      pull-requests: write
-      security-events: write
-      statuses: write
+      contents: write # commit fix
+      issues: write # https://megalinter.io/latest/reporters/GitHubCommentReporter/
+      pull-requests: write # https://megalinter.io/latest/reporters/GitHubCommentReporter/
+      security-events: write # https://megalinter.io/latest/reporters/SarifReporter/
+      statuses: write # https://megalinter.io/latest/reporters/GitHubStatusReporter/
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
