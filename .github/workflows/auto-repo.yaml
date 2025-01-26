@@ -28,9 +28,6 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "chore(copier): update from template"
-          commit_user_name: ${{ github.actor }}
-          commit_user_email: ${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com
-          commit_author: ${{ github.actor }} <${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com>
 
   label-sync:
     name: Label Sync
@@ -64,6 +61,17 @@ jobs:
             --enable-wiki=false
         env:
           GH_TOKEN: ${{ secrets.PAT || github.token }}
+
+  ruleset-import:
+    name: Ruleset Import
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ruleset Import
+        uses: liblaf/actions/ruleset-import@main
+        with:
+          token: ${{ secrets.PAT || github.token }}
+          source-repo: liblaf/.github
+          source-ruleset-id: 3407904
 
   set-default-workflow-permissions:
     name: Set Default Workflow Permissions
