@@ -21,9 +21,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          token: ${{ github.token }}
+          token: ${{ secrets.PAT || github.token }}
       - name: MegaLinter
         uses: liblaf/actions/mega-linter@main
+      - name: Remove MegeLinter Reports
+        run: rm --force --recursive "mega-linter.log" "megalinter-reports/"
       - name: Auto Commit
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
