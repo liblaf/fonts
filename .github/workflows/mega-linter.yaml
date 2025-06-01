@@ -8,17 +8,30 @@ name: MegaLinter
 
 on:
   push:
+    branches-ignore:
+      - assets**
+      - gh-pages
   pull_request:
   workflow_dispatch:
 
 jobs:
+  delete-cancelled-runs:
+    name: Delete Cancelled Runs
+    permissions:
+      actions: write
+    runs-on: "ubuntu-latest"
+    steps:
+      - uses: MercuryTechnologies/delete-cancelled-runs@1.0.0
+        with:
+          workflow-file: mega-linter.yaml
+          github-token: ${{ secrets.GH_PAT || github.token }}
+
   mega-linter:
     name: MegaLinter
     permissions:
       contents: write # commit fix
       issues: write # ref: <https://megalinter.io/latest/reporters/GitHubCommentReporter/>
       pull-requests: write # ref: <https://megalinter.io/latest/reporters/GitHubCommentReporter/>
-      statuses: write # ref: <https://megalinter.io/latest/reporters/GitHubStatusReporter/>
     runs-on: ubuntu-latest
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}-mega-linter
@@ -33,6 +46,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
+          ref: ${{ github.head_ref || github.ref }}
           token: ${{ steps.auth.outputs.token }}
       - name: MegaLinter
         uses: liblaf/actions/mega-linter@main
@@ -40,11 +54,9 @@ jobs:
           token: ${{ steps.auth.outputs.token }}
       - name: Remove MegaLinter Reports
         run: sudo rm --force --recursive "mega-linter.log" "megalinter-reports/"
-      - name: Git Add
-        run: git add --update
       - name: Commit
-        uses: dsanders11/github-app-commit-action@v1
+        uses: liblaf/actions/commit@main
         with:
-          fail-on-no-changes: false
-          message: "chore(mega-linter): apply linters fixes"
+          add-options: --verbose --update
+          message: "chore(mega-linter): apply linter fixes"
           token: ${{ steps.auth.outputs.token }}

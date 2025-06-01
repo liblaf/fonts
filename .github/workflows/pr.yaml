@@ -9,13 +9,13 @@ on:
   workflow_dispatch:
 
 jobs:
-  merge:
-    name: Merge
+  auto-merge:
+    name: Auto-Merge
     permissions:
       pull-requests: write
     runs-on: ubuntu-latest
     concurrency:
-      group: ${{ github.workflow }}-merge
+      group: ${{ github.workflow }}-auto-merge
       cancel-in-progress: true
     steps:
       - id: auth
@@ -24,13 +24,13 @@ jobs:
         with:
           app-id: ${{ secrets.GH_APP_ID }}
           private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
-      - name: Merge Release Please
+      - name: Auto-Merge Release Please
         uses: liblaf/actions/pr-label@main
         with:
           add-label: automerge
           label: "autorelease: pending"
           token: ${{ steps.auth.outputs.token }}
-      - name: Merge Renovate
+      - name: Auto-Merge Renovate
         uses: liblaf/actions/pr-label@main
         with:
           add-label: automerge
