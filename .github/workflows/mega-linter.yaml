@@ -21,10 +21,16 @@ jobs:
       actions: write
     runs-on: "ubuntu-latest"
     steps:
+      - id: workflow
+        name: Get Workflow File
+        run: |-
+          file="${GITHUB_WORKFLOW_REF%@*}"
+          file="$(basename -- "$file")"
+          printf "file=%q\n" "$file" >> "$GITHUB_OUTPUT"
       - uses: MercuryTechnologies/delete-cancelled-runs@1.0.0
         with:
-          workflow-file: mega-linter.yaml
-          github-token: ${{ secrets.GH_PAT || github.token }}
+          workflow-file: ${{ steps.workflow.outputs.file }}
+          github-token: ${{ github.token }}
 
   mega-linter:
     name: MegaLinter
