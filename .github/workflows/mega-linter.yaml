@@ -32,12 +32,27 @@ jobs:
           workflow-file: ${{ steps.workflow.outputs.file }}
           github-token: ${{ github.token }}
 
+  skip-duplicate-actions:
+    name: Skip Duplicate Actions
+    runs-on: ubuntu-latest
+    outputs:
+      should-skip: ${{ steps.skip.outputs.should_skip }}
+    steps:
+      - id: skip
+        name: Skip Duplicate Actions
+        uses: fkirc/skip-duplicate-actions@v5
+        with:
+          concurrent_skipping: same_content_newer
+
   mega-linter:
     name: MegaLinter
     permissions:
       contents: write # commit fix
       issues: write # ref: <https://megalinter.io/latest/reporters/GitHubCommentReporter/>
       pull-requests: write # ref: <https://megalinter.io/latest/reporters/GitHubCommentReporter/>
+    needs:
+      - skip-duplicate-actions
+    if: needs.skip-duplicate-actions.outputs.should-skip != 'true'
     runs-on: ubuntu-latest
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}-mega-linter
