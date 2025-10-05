@@ -3,7 +3,7 @@ name: Microsoft Fonts
 on:
   push:
   schedule:
-    - cron: "0 0 * * 0"
+    - cron: "0 0 * * 0" # Runs at 00:00, only on Sunday
   workflow_dispatch:
 
 jobs:
@@ -14,9 +14,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
       - name: Download Fido
+        # ref: <https://github.com/pbatard/Fido>
         run: |-
-          # https://github.com/pbatard/Fido
-          Invoke-WebRequest -Uri "https://github.com/pbatard/Fido/raw/refs/heads/master/Fido.ps1" -OutFile "Fido.ps1"
+          Invoke-WebRequest -Uri 'https://github.com/pbatard/Fido/raw/refs/heads/master/Fido.ps1' -OutFile 'Fido.ps1'
       - name: List Windows Versions
         run: .\Fido.ps1 -Win List
         continue-on-error: true
@@ -32,11 +32,11 @@ jobs:
       - name: List Directory Contents
         run: Get-ChildItem
       - name: Parse ISO Filename
-        run: python ms-fonts/parse-iso-filename.py *.iso
+        run: python 'ms-fonts/parse-iso-filename.py' *.iso
         shell: bash
       - name: Extract Fonts
+        # ref: <https://wiki.archlinux.org/title/Microsoft_fonts#Extracting_fonts_from_a_Windows_ISO>
         run: |-
-          # https://wiki.archlinux.org/title/Microsoft_fonts#Extracting_fonts_from_a_Windows_ISO
           7z e *.iso sources/install.wim
           7z e -y install.wim 1/Windows/{Fonts/"*".{ttf,ttc},System32/Licenses/neutral/"*"/"*"/license.rtf} -ofonts/
         shell: bash
@@ -82,9 +82,9 @@ jobs:
           merge-multiple: true
       - id: parse
         name: Parse Artifact Filename
-        run: python ms-fonts/parse-asset-filename.py dist/*.zip
+        run: python 'ms-fonts/parse-asset-filename.py' dist/*.zip
       - name: Release
-        uses: liblaf/actions/release@main
+        uses: liblaf/actions/release@dist
         with:
           clobber: true
           files: dist/*.zip

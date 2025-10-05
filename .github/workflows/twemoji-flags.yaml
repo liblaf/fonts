@@ -3,7 +3,7 @@ name: Twemoji Flags
 on:
   push:
   schedule:
-    - cron: "0 0 * * 0"
+    - cron: "0 0 * * 0" # Runs at 00:00, only on Sunday
   workflow_dispatch:
 
 jobs:
@@ -46,7 +46,7 @@ jobs:
         with:
           name: TwemojiFlags
       - name: Release
-        uses: liblaf/actions/release@main
+        uses: liblaf/actions/release@dist
         with:
           clobber: true
           tag: TwemojiFlags
