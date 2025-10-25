@@ -45,7 +45,7 @@ jobs:
         working-directory: fonts/
         shell: bash
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: ${{ matrix.Win }}-${{ matrix.Lang }}
           path: fonts/*.zip
@@ -75,7 +75,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Download Artifacts
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           path: dist
           pattern: ${{ matrix.Win }}-*
