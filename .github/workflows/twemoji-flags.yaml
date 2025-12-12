@@ -20,7 +20,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: TwemojiFlags
           path: TwemojiFlags.ttf
@@ -42,7 +42,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Download Artifacts
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: TwemojiFlags
       - name: Release
